@@ -3,11 +3,11 @@
 <div align="center">
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?style=flat-square)
-![Flet](https://img.shields.io/badge/Flet-0.21+-green?style=flat-square)
+![Flet](https://img.shields.io/badge/Flet-0.80+-green?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
-![Platform](https://img.shields.io/badge/Platform-Windows/Android-green?style=flat-square)
+![Android](https://img.shields.io/badge/Platform-Android-green?style=flat-square)
 
-A local AI companion app that works offline, built with Python and Flet.
+A local AI companion app for Android that works offline, built with Python and Flet.
 
 [English](#english) | [Русский](#русский)
 
@@ -21,20 +21,20 @@ A local AI companion app that works offline, built with Python and Flet.
 
 ### Features
 
-- **Chat with AI** - Conversational AI powered by local GGUF models
-- **Smart Context Management** - Automatic summarization when context limit is reached
-- **Status Bar** - Real-time AI model status (loading, ready, generating)
-- **Theme Support** - Light, Dark, and System theme modes (Material 3)
-- **Multilingual** - Russian and English interface
-- **History** - Persistent chat history with SQLite
-- **Customizable** - Configure AI personality via system prompt
-- **Modern UI** - Material Design 3 with clean interface
+- 💬 **Chat with AI** - Conversational AI powered by local GGUF models
+- 📄 **Document Analysis** - Extract and analyze text from PDF, DOCX files
+- 🖼️ **Image Analysis** - OCR and image description capabilities
+- 🌙 **Theme Support** - Light, Dark, and System theme modes
+- 🌍 **Multilingual** - Russian and English interface
+- 💾 **History** - Persistent chat history with SQLite
+- ⚙️ **Customizable** - Configure AI personality via system prompt
+- 📤 **Export** - Export conversations to JSON
 
 ### Requirements
 
 - Python 3.10+
 - 4GB+ RAM (6GB+ recommended)
-- Windows 10+ or Android 8.0+
+- Android 8.0+ (for APK)
 - GGUF model file (included)
 
 ### Installation
@@ -64,18 +64,16 @@ sanchoAI/
 ├── app/
 │   ├── main.py              # App entry point
 │   ├── screens/             # UI screens
-│   │   ├── chat.py          # Main chat screen
-│   │   └── settings.py      # Settings screen
-│   ├── services/            # Business logic
+│   │   ├── chat.py        # Main chat screen
+│   │   └── settings.py     # Settings screen
+│   ├── services/           # Business logic
 │   │   ├── ai_service.py   # AI model inference
-│   │   ├── db_service.py   # SQLite database
-│   │   └── notification_service.py
-│   ├── widgets/             # Reusable UI components
-│   │   ├── message_bubble.py
-│   │   └── status_bar.py   # AI status indicator
-│   ├── models/              # Data models
-│   ├── i18n/                # Internationalization
-│   └── utils/               # Utilities
+│   │   ├── db_service.py  # SQLite database
+│   │   └── doc_service.py # Document parsing
+│   ├── widgets/            # Reusable UI components
+│   ├── models/            # Data models
+│   ├── i18n/              # Internationalization
+│   └── utils/             # Utilities
 ├── google_gemma-3-1b-it-Q5_K_M.gguf  # AI Model
 ├── requirements.txt
 └── main.py
@@ -84,10 +82,9 @@ sanchoAI/
 ### Configuration
 
 - **AI Model**: Uses Gemma 3B GGUF model (Q5_K_M quantization)
-- **Database**: SQLite stored in app data folder
+- **Database**: SQLite stored in `~/.ai_companion/`
 - **Theme**: System/Light/Dark via settings
 - **Language**: Auto-detected or manual in settings
-- **Context Limit**: 1024 tokens (automatic summarization on overflow)
 
 ### License
 
@@ -101,20 +98,20 @@ MIT License - See LICENSE file for details.
 
 ### Функции
 
-- **Чат с AI** - Разговорный AI на основе локальной GGUF модели
-- **Умное управление контекстом** - Автоматическое создание резюме при превышении лимита
-- **Статус бар** - Отображение состояния AI модели в реальном времени
-- **Темы** - Светлая, тёмная и системная темы (Material 3)
-- **Многоязычность** - Русский и английский интерфейс
-- **История** - Сохранение истории чата в SQLite
-- **Настройка** - Изменение личности AI через system prompt
-- **Современный UI** - Material Design 3 с чистым интерфейсом
+- 💬 **Чат с AI** - Разговорный AI на основе локальной GGUF модели
+- 📄 **Анализ документов** - Извлечение и анализ текста из PDF, DOCX
+- 🖼️ **Анализ изображений** - OCR и описание изображений
+- 🌙 **Темы** - Светлая, тёмная и системная темы
+- 🌍 **Многоязычность** - Русский и английский интерфейс
+- 💾 **История** - Сохранение истории чата в SQLite
+- ⚙️ **Настройка** - Изменение личности AI через system prompt
+- 📤 **Экспорт** - Экспорт диалогов в JSON
 
 ### Требования
 
 - Python 3.10+
 - 4GB+ RAM (рекомендуется 6GB+)
-- Windows 10+ или Android 8.0+
+- Android 8.0+ (для APK)
 - GGUF файл модели (включён)
 
 ### Установка
@@ -144,18 +141,16 @@ sanchoAI/
 ├── app/
 │   ├── main.py              # Точка входа
 │   ├── screens/             # Экраны UI
-│   │   ├── chat.py         # Экран чата
+│   │   ├── chat.py        # Экран чата
 │   │   └── settings.py     # Настройки
 │   ├── services/           # Бизнес-логика
 │   │   ├── ai_service.py   # AI модель
-│   │   ├── db_service.py   # SQLite БД
-│   │   └── notification_service.py
+│   │   ├── db_service.py  # SQLite БД
+│   │   └── doc_service.py # Документы
 │   ├── widgets/            # UI компоненты
-│   │   ├── message_bubble.py
-│   │   └── status_bar.py  # Индикатор статуса AI
 │   ├── models/             # Модели данных
-│   ├── i18n/               # Переводы
-│   └── utils/              # Утилиты
+│   ├── i18n/              # Переводы
+│   └── utils/             # Утилиты
 ├── google_gemma-3-1b-it-Q5_K_M.gguf  # AI модель
 ├── requirements.txt
 └── main.py
@@ -164,10 +159,9 @@ sanchoAI/
 ### Настройка
 
 - **AI Модель**: Gemma 3B GGUF (Q5_K_M квантование)
-- **База данных**: SQLite в папке данных приложения
+- **База данных**: SQLite в `~/.ai_companion/`
 - **Тема**: Системная/Светлая/Тёмная через настройки
 - **Язык**: Автоопределение или ручной выбор
-- **Лимит контекста**: 1024 токена (авто-резюме при переполнении)
 
 ### Лицензия
 
@@ -177,6 +171,7 @@ MIT License - см. файл LICENSE.
 
 <div align="center">
 
-**Made with Python + Flet**
+**Made with ❤️ using Python + Flet**
 
 </div>
+# sanchoAI
