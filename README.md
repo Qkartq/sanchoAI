@@ -1,177 +1,78 @@
-# AI Companion
+# Sancho.AI
 
-<div align="center">
+A local AI chatbot application for Android built with Flutter. Runs GGUF-compatible AI models directly on your device.
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue?style=flat-square)
-![Flet](https://img.shields.io/badge/Flet-0.80+-green?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
-![Android](https://img.shields.io/badge/Platform-Android-green?style=flat-square)
+## Features
 
-A local AI companion app for Android that works offline, built with Python and Flet.
+- **Local AI Model Execution** - Run GGUF-compatible language models (Llama, Mistral, Qwen, etc.) directly on Android
+- **Chat Interface** - Clean and intuitive chat UI with markdown support
+- **Model Management** - Easy model selection and loading from device storage
+- **Customizable Settings** - System prompt configuration, theme selection (light/dark/system)
+- **Conversation History** - Automatic saving and loading of chat conversations
+- **Real-time Status** - Visual indicator showing model loading and generation status
 
-[English](#english) | [Русский](#русский)
+## Requirements
 
----
+- Android device with Android 8.0 (API 26) or higher
+- GGUF format AI model file (.gguf)
 
-</div>
+## Installation
 
-<a name="english"></a>
+1. Download the latest APK from the Releases section
+2. Install the APK on your Android device
+3. Go to Settings and select your AI model file
+4. Wait for the model to load
+5. Start chatting!
 
-## English
+## Model Setup
 
-### Features
+1. Download a GGUF-compatible model (e.g., from Hugging Face)
+2. Transfer the model file to your Android device
+3. Open the app → Settings → Select Model
+4. Choose your model file and wait for loading to complete
 
-- 💬 **Chat with AI** - Conversational AI powered by local GGUF models
-- 📄 **Document Analysis** - Extract and analyze text from PDF, DOCX files
-- 🖼️ **Image Analysis** - OCR and image description capabilities
-- 🌙 **Theme Support** - Light, Dark, and System theme modes
-- 🌍 **Multilingual** - Russian and English interface
-- 💾 **History** - Persistent chat history with SQLite
-- ⚙️ **Customizable** - Configure AI personality via system prompt
-- 📤 **Export** - Export conversations to JSON
+Recommended models:
+- Qwen2.5-0.5B-Instruct-Q4_K_M.gguf
+- llama-3.2-1b-instruct-q4_k_m.gguf
+- mistral-7b-instruct-v0.2-q4_k_m.gguf
 
-### Requirements
+## Technical Details
 
-- Python 3.10+
-- 4GB+ RAM (6GB+ recommended)
-- Android 8.0+ (for APK)
-- GGUF model file (included)
+- **Framework**: Flutter
+- **State Management**: Riverpod
+- **Model Runtime**: llama.cpp via llama_flutter_android
+- **Storage**: SharedPreferences for settings and conversation history
+- **Architecture**: Clean Architecture (Presentation / Domain / Data layers)
 
-### Installation
-
-1. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-2. Run the app:
-```bash
-python main.py
-```
-
-### Building APK
-
-Prerequisites: Flutter SDK must be installed.
+## Building from Source
 
 ```bash
-flet build apk sanchoAI --project AICompanion --org com.aicompanion
+# Clone the repository
+git clone https://github.com/Qkartq/SanchoAI.git
+
+# Navigate to project directory
+cd SanchoAI/sanchoai
+
+# Get dependencies
+flutter pub get
+
+# Build debug APK
+flutter build apk --debug
+
+# Build release APK
+flutter build apk --release
 ```
 
-### Project Structure
+## Screenshots
 
-```
-sanchoAI/
-├── app/
-│   ├── main.py              # App entry point
-│   ├── screens/             # UI screens
-│   │   ├── chat.py        # Main chat screen
-│   │   └── settings.py     # Settings screen
-│   ├── services/           # Business logic
-│   │   ├── ai_service.py   # AI model inference
-│   │   ├── db_service.py  # SQLite database
-│   │   └── doc_service.py # Document parsing
-│   ├── widgets/            # Reusable UI components
-│   ├── models/            # Data models
-│   ├── i18n/              # Internationalization
-│   └── utils/             # Utilities
-├── google_gemma-3-1b-it-Q5_K_M.gguf  # AI Model
-├── requirements.txt
-└── main.py
-```
+| Chat Screen | Settings |
+|-------------|----------|
+| Modern chat interface with status indicator | Model selection and configuration |
 
-### Configuration
+## License
 
-- **AI Model**: Uses Gemma 3B GGUF model (Q5_K_M quantization)
-- **Database**: SQLite stored in `~/.ai_companion/`
-- **Theme**: System/Light/Dark via settings
-- **Language**: Auto-detected or manual in settings
+MIT License
 
-### License
+## Author
 
-MIT License - See LICENSE file for details.
-
----
-
-<a name="русский"></a>
-
-## Русский
-
-### Функции
-
-- 💬 **Чат с AI** - Разговорный AI на основе локальной GGUF модели
-- 📄 **Анализ документов** - Извлечение и анализ текста из PDF, DOCX
-- 🖼️ **Анализ изображений** - OCR и описание изображений
-- 🌙 **Темы** - Светлая, тёмная и системная темы
-- 🌍 **Многоязычность** - Русский и английский интерфейс
-- 💾 **История** - Сохранение истории чата в SQLite
-- ⚙️ **Настройка** - Изменение личности AI через system prompt
-- 📤 **Экспорт** - Экспорт диалогов в JSON
-
-### Требования
-
-- Python 3.10+
-- 4GB+ RAM (рекомендуется 6GB+)
-- Android 8.0+ (для APK)
-- GGUF файл модели (включён)
-
-### Установка
-
-1. Установите зависимости:
-```bash
-pip install -r requirements.txt
-```
-
-2. Запустите приложение:
-```bash
-python main.py
-```
-
-### Сборка APK
-
-Требование: Flutter SDK должен быть установлен.
-
-```bash
-flet build apk sanchoAI --project AICompanion --org com.aicompanion
-```
-
-### Структура проекта
-
-```
-sanchoAI/
-├── app/
-│   ├── main.py              # Точка входа
-│   ├── screens/             # Экраны UI
-│   │   ├── chat.py        # Экран чата
-│   │   └── settings.py     # Настройки
-│   ├── services/           # Бизнес-логика
-│   │   ├── ai_service.py   # AI модель
-│   │   ├── db_service.py  # SQLite БД
-│   │   └── doc_service.py # Документы
-│   ├── widgets/            # UI компоненты
-│   ├── models/             # Модели данных
-│   ├── i18n/              # Переводы
-│   └── utils/             # Утилиты
-├── google_gemma-3-1b-it-Q5_K_M.gguf  # AI модель
-├── requirements.txt
-└── main.py
-```
-
-### Настройка
-
-- **AI Модель**: Gemma 3B GGUF (Q5_K_M квантование)
-- **База данных**: SQLite в `~/.ai_companion/`
-- **Тема**: Системная/Светлая/Тёмная через настройки
-- **Язык**: Автоопределение или ручной выбор
-
-### Лицензия
-
-MIT License - см. файл LICENSE.
-
----
-
-<div align="center">
-
-**Made with ❤️ using Python + Flet**
-
-</div>
-# sanchoAI
+Qkartq
