@@ -1,0 +1,15 @@
+.dart_tool/
+.packages
+.pub/
+build/
+.idea/
+.vscode/
+*.iml
+android/.gradle/
+android/build/
+android/captures/
+*.lock
+pubspec.lock
+*.log
+.DS_Store
+Thumbs.db
