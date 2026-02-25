@@ -596,4 +596,37 @@ class HistoryNotifier extends StateNotifier<HistoryState> {
 
     state = state.copyWith(conversations: updatedConvs);
   }
+
+  Future<void> appendToLastMessage(String additionalContent) async {
+    if (_storage == null || state.currentConversationId == null) return;
+    if (additionalContent.isEmpty) return;
+
+    final convIndex = state.conversations.indexWhere(
+      (c) => c.id == state.currentConversationId,
+    );
+    if (convIndex < 0) return;
+
+    final conv = state.conversations[convIndex];
+    if (conv.messages.isEmpty) return;
+
+    final lastMessage = conv.messages.last;
+    final updatedMessage = lastMessage.copyWith(
+      content: lastMessage.content + additionalContent,
+    );
+
+    final updatedMessages = [...conv.messages];
+    updatedMessages[updatedMessages.length - 1] = updatedMessage;
+
+    final updatedConv = conv.copyWith(
+      messages: updatedMessages,
+      updatedAt: DateTime.now(),
+    );
+
+    await _storage!.saveConversation(updatedConv);
+
+    final updatedConvs = [...state.conversations];
+    updatedConvs[convIndex] = updatedConv;
+
+    state = state.copyWith(conversations: updatedConvs);
+  }
 }

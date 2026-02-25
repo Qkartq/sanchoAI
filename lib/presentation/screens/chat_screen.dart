@@ -72,6 +72,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         history: history,
         temperature: settings?.temperature,
         maxTokens: settings?.maxTokens,
+        topP: settings?.topP,
+        topK: settings?.topK,
+        repeatPenalty: settings?.repeatPenalty,
+        repeatLastN: settings?.repeatLastN,
       )) {
         if (mounted) {
           setState(() {
@@ -148,6 +152,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         history,
         temperature: settings?.temperature,
         maxTokens: settings?.maxTokens,
+        topP: settings?.topP,
+        topK: settings?.topK,
+        repeatPenalty: settings?.repeatPenalty,
+        repeatLastN: settings?.repeatLastN,
       )) {
         if (mounted) {
           setState(() {
@@ -158,7 +166,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       }
       
       if (_currentResponse.isNotEmpty) {
-        ref.read(historyProvider.notifier).addMessageToConversation(conversationId, 'assistant', _currentResponse);
+        ref.read(historyProvider.notifier).appendToLastMessage(_currentResponse);
       }
     } catch (e) {
       if (mounted) {
@@ -219,7 +227,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ),
         title: Column(
           children: [
-            const Text('Sancho.AI'),
+            Text(
+              historyState.currentConversation?.title ?? 'Sancho.AI',
+              style: theme.textTheme.titleMedium,
+            ),
             CompactStatusIndicator(modelState: modelState),
           ],
         ),
@@ -389,9 +400,37 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       ref.read(historyProvider.notifier).selectConversation(conv.id);
                       Navigator.pop(context);
                     },
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, size: 20),
-                      onPressed: () => _showDeleteConversationDialog(conv),
+                    trailing: PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, size: 20),
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'rename',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit_rounded, size: 20),
+                              SizedBox(width: 8),
+                              Text('Rename'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete_outline_rounded, size: 20),
+                              SizedBox(width: 8),
+                              Text('Delete'),
+                            ],
+                          ),
+                        ),
+                      ],
+                      onSelected: (value) {
+                        if (value == 'rename') {
+                          _showRenameConversationDialog(conv);
+                        } else if (value == 'delete') {
+                          _showDeleteConversationDialog(conv);
+                        }
+                      },
                     ),
                   );
                 },
@@ -399,6 +438,46 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showRenameConversationDialog(Conversation conv) {
+    final controller = TextEditingController(text: conv.title);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rename Chat'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Chat name',
+            border: OutlineInputBorder(),
+          ),
+          onSubmitted: (value) {
+            if (value.trim().isNotEmpty) {
+              ref.read(historyProvider.notifier).renameConversation(conv.id, value.trim());
+              Navigator.pop(context);
+            }
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              final newTitle = controller.text.trim();
+              if (newTitle.isNotEmpty) {
+                ref.read(historyProvider.notifier).renameConversation(conv.id, newTitle);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Rename'),
+          ),
+        ],
       ),
     );
   }

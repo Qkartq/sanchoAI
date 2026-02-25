@@ -7,10 +7,13 @@ A local AI chatbot application for Android built with Flutter. Runs GGUF-compati
 - **Local AI Model Execution** - Run GGUF-compatible language models (Llama, Mistral, Qwen, etc.) directly on Android
 - **Chat Interface** - Clean and intuitive chat UI with markdown support
 - **Model Management** - Easy model selection and loading from device storage
-- **Customizable Settings** - System prompt, temperature, max tokens, repeat penalty, context window, theme selection (light/dark/system)
-- **Conversation History** - Automatic saving and loading of chat conversations
+- **Customizable Generation Settings** - Temperature, max tokens, repeat penalty, context window, top P, top K, repeat last N
+- **System Prompt** - Customize AI personality and behavior with contextual instructions
+- **Conversation Management** - Create, rename, and delete chat conversations
+- **Continue Generation** - Continue generating response by appending to the last AI message
+- **Reset Settings** - One-click reset of all generation parameters to defaults
+- **Built-in Help** - Info tooltips explaining each generation parameter
 - **Real-time Status** - Visual indicator showing model loading and generation status
-- **Continue Generation** - Continue generating response from the last AI message
 - **Material You (Material Design 3)** - Modern UI with dynamic color theming from Android wallpaper
 - **Dynamic Typography** - Noto Sans variable font family
 - **Smooth Scrolling** - Bounce physics with overscroll glow indicator
@@ -44,10 +47,35 @@ Recommended models:
 
 Configure generation parameters in Settings:
 
-- **Temperature** (0.1-2.0) - Controls randomness (lower = more focused)
-- **Max Tokens** (64-4096) - Maximum response length
-- **Repeat Penalty** (1.0-2.0) - Prevents repetitive responses
-- **Context Window** (512-8192) - Conversation history size
+| Parameter | Range | Description |
+|-----------|-------|-------------|
+| **Temperature** | 0.1-2.0 | Controls randomness (lower = more focused) |
+| **Max Tokens** | 64-4096 | Maximum response length |
+| **Repeat Penalty** | 1.0-2.0 | Prevents repetitive responses |
+| **Context Window** | 512-8192 | Conversation history size |
+| **Top P** | 0.0-1.0 | Nucleus sampling threshold |
+| **Top K** | 1-100 | Number of top tokens to consider |
+| **Repeat Last N** | 0-128 | Recent tokens to check for repetition |
+
+- **Reset** button to restore all settings to defaults
+- **Info icons** next to each setting provide detailed explanations
+
+## System Prompt
+
+Customize the AI's personality and behavior. Default: "You are a helpful AI assistant."
+
+Example prompts:
+- "You are a helpful AI assistant."
+- "You are a Python programming expert. Provide clear, concise code examples."
+- "You are a creative story writer. Write engaging narratives."
+
+## Chat Management
+
+- Swipe from left or tap menu icon to open chat list
+- Create new chats with the + button
+- **Rename** existing chats via the context menu (three dots)
+- Delete chats via the context menu
+- Each chat maintains its own conversation history
 
 ## Technical Details
 

@@ -50,7 +50,7 @@ final initializeModelProvider = Provider<Future<void> Function()>((ref) {
   
   return () async {
     final s = settings.valueOrNull;
-    debugPrint('Initializing model with path: ${s?.modelPath}');
+    debugPrint('Initializing model');
     if (s == null || s.modelPath.isEmpty) {
       debugPrint('No model path set');
       return;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import 'dart:async';
 import '../providers/settings_provider.dart';
 import '../providers/model_provider.dart';
 import '../../domain/entities/model_state.dart';
@@ -14,6 +15,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   late TextEditingController _promptController;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -24,7 +26,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   void dispose() {
     _promptController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  void _onSystemPromptChanged(String value) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      ref.read(settingsProvider.notifier).setSystemPrompt(value);
+    });
   }
 
   @override
@@ -141,19 +151,46 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: TextField(
-                    controller: _promptController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'Enter system prompt...',
-                    ),
-                    maxLines: 4,
-                    onChanged: (v) => ref.read(settingsProvider.notifier).setSystemPrompt(v),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _promptController,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Enter system prompt...',
+                              ),
+                              maxLines: 4,
+                              onChanged: _onSystemPromptChanged,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(Icons.info_outline_rounded),
+                            tooltip: 'System Prompt: Defines the AI\'s personality and behavior. This sets the initial context for all conversations.',
+                            onPressed: () => _showInfoDialog(
+                              'System Prompt',
+                              'System Prompt defines the AI\'s personality and behavior. It sets the initial context and instructions for all conversations.\n\nDefault: "You are a helpful AI assistant."',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
               
-              _SectionHeader(title: 'Generation Settings'),
+              _SectionHeader(
+                title: 'Generation Settings',
+                trailing: TextButton.icon(
+                  onPressed: () => ref.read(settingsProvider.notifier).resetGenerationSettings(),
+                  icon: const Icon(Icons.restore_rounded, size: 18),
+                  label: const Text('Reset'),
+                ),
+              ),
               Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Padding(
@@ -166,6 +203,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           const Text('Temperature'),
                           Text('${s.temperature.toStringAsFixed(1)}'),
+                          IconButton(
+                            icon: const Icon(Icons.info_outline_rounded, size: 20),
+                            tooltip: 'Controls randomness. Lower = more focused, Higher = more creative.',
+                            onPressed: () => _showInfoDialog(
+                              'Temperature',
+                              'Controls randomness in generation.\n\n• Low (0.1-0.4): Focused, deterministic responses\n• Medium (0.5-0.8): Balanced\n• High (0.9-2.0): Creative, varied responses\n\nRecommended: 0.5-0.7 for general use.',
+                            ),
+                          ),
                         ],
                       ),
                       Slider(
@@ -181,6 +226,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           const Text('Max Tokens'),
                           Text('${s.maxTokens}'),
+                          IconButton(
+                            icon: const Icon(Icons.info_outline_rounded, size: 20),
+                            tooltip: 'Maximum length of the AI response.',
+                            onPressed: () => _showInfoDialog(
+                              'Max Tokens',
+                              'Maximum number of tokens (words/word parts) the AI can generate in a single response.\n\n• Higher = longer responses, more memory\n• Lower = shorter responses\n\nRecommended: 256-512 for chat.',
+                            ),
+                          ),
                         ],
                       ),
                       Slider(
@@ -196,6 +249,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           const Text('Repeat Penalty'),
                           Text('${s.repeatPenalty.toStringAsFixed(2)}'),
+                          IconButton(
+                            icon: const Icon(Icons.info_outline_rounded, size: 20),
+                            tooltip: 'Penalizes repetitive tokens.',
+                            onPressed: () => _showInfoDialog(
+                              'Repeat Penalty',
+                              'Penalizes the model for repeating the same tokens.\n\n• 1.0: No penalty\n• 1.1-1.2: Light penalty\n• 1.5+: Strong penalty\n\nRecommended: 1.1-1.2 to prevent repetition.',
+                            ),
+                          ),
                         ],
                       ),
                       Slider(
@@ -211,6 +272,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         children: [
                           const Text('Context Window'),
                           Text('${s.contextWindow}'),
+                          IconButton(
+                            icon: const Icon(Icons.info_outline_rounded, size: 20),
+                            tooltip: 'Number of previous tokens to consider.',
+                            onPressed: () => _showInfoDialog(
+                              'Context Window',
+                              'Number of previous tokens the model considers when generating a response.\n\n• Higher = more context, more memory usage\n• Lower = less memory, less conversation history\n\nNote: Must be within model\'s supported context size.',
+                            ),
+                          ),
                         ],
                       ),
                       Slider(
@@ -219,6 +288,75 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         max: 8192,
                         divisions: 15,
                         onChanged: (v) => ref.read(settingsProvider.notifier).setContextWindow(v.toInt()),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Top P'),
+                          Text('${s.topP.toStringAsFixed(2)}'),
+                          IconButton(
+                            icon: const Icon(Icons.info_outline_rounded, size: 20),
+                            tooltip: 'Nucleus sampling threshold.',
+                            onPressed: () => _showInfoDialog(
+                              'Top P (Nucleus Sampling)',
+                              'Controls vocabulary selection based on cumulative probability.\n\n• Lower (0.1-0.5): Only most probable tokens\n• Higher (0.7-1.0): More diverse vocabulary\n\nRecommended: 0.8-0.95.\n\nNote: Use either Top P or Top K, not both.',
+                            ),
+                          ),
+                        ],
+                      ),
+                      Slider(
+                        value: s.topP,
+                        min: 0.0,
+                        max: 1.0,
+                        divisions: 20,
+                        onChanged: (v) => ref.read(settingsProvider.notifier).setTopP(v),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Top K'),
+                          Text('${s.topK}'),
+                          IconButton(
+                            icon: const Icon(Icons.info_outline_rounded, size: 20),
+                            tooltip: 'Number of top tokens to consider.',
+                            onPressed: () => _showInfoDialog(
+                              'Top K',
+                              'Limits vocabulary to the top K most probable tokens.\n\n• Lower (1-10): Very focused\n• Medium (20-40): Balanced\n• Higher (50-100): More diverse\n\nRecommended: 20-40.\n\nNote: Use either Top K or Top P, not both.',
+                            ),
+                          ),
+                        ],
+                      ),
+                      Slider(
+                        value: s.topK.toDouble(),
+                        min: 1,
+                        max: 100,
+                        divisions: 99,
+                        onChanged: (v) => ref.read(settingsProvider.notifier).setTopK(v.toInt()),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Repeat Last N'),
+                          Text('${s.repeatLastN}'),
+                          IconButton(
+                            icon: const Icon(Icons.info_outline_rounded, size: 20),
+                            tooltip: 'Number of recent tokens to check for repetition.',
+                            onPressed: () => _showInfoDialog(
+                              'Repeat Last N',
+                              'Number of recent tokens to consider when applying repeat penalty.\n\n• Lower: Only checks recent tokens\n• Higher: Checks more context\n\nRecommended: 32-64 for conversation.',
+                            ),
+                          ),
+                        ],
+                      ),
+                      Slider(
+                        value: s.repeatLastN.toDouble(),
+                        min: 0,
+                        max: 128,
+                        divisions: 128,
+                        onChanged: (v) => ref.read(settingsProvider.notifier).setRepeatLastN(v.toInt()),
                       ),
                     ],
                   ),
@@ -317,23 +455,48 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final service = ref.read(llamaServiceProvider);
     await service.stop();
   }
+
+  void _showInfoDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _SectionHeader extends StatelessWidget {
   final String title;
+  final Widget? trailing;
 
-  const _SectionHeader({required this.title});
+  const _SectionHeader({required this.title, this.trailing});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (trailing != null) ...[
+            const Spacer(),
+            trailing!,
+          ],
+        ],
       ),
     );
   }

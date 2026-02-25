@@ -31,7 +31,7 @@ class LlamaService {
     String systemPrompt = 'You are a helpful AI assistant.',
   }) async {
     debugPrint('LlamaService: Starting initialization...');
-    debugPrint('Model path: $modelPath');
+    debugPrint('Model file selected');
     _systemPrompt = systemPrompt;
     _updateState(const ModelState(status: ModelStatus.loading));
     
@@ -41,7 +41,7 @@ class LlamaService {
         debugPrint('Model file not found!');
         _updateState(ModelState(
           status: ModelStatus.error,
-          errorMessage: 'Model file not found: $modelPath',
+          errorMessage: 'Model file not found',
         ));
         return;
       }
@@ -66,7 +66,7 @@ class LlamaService {
         contextSize: contextWindow,
       );
       
-      debugPrint('Model loaded successfully! hasMultimodal: $hasMmproj');
+      debugPrint('Model loaded successfully');
       _updateState(ModelState(
         status: ModelStatus.ready,
         hasMultimodal: hasMmproj,
@@ -144,7 +144,7 @@ class LlamaService {
     return buffer.toString();
   }
 
-  Future<String> generate(String message, {List<Map<String, String>>? history, double? temperature, int? maxTokens}) async {
+  Future<String> generate(String message, {List<Map<String, String>>? history, double? temperature, int? maxTokens, double? topP, int? topK, double? repeatPenalty, int? repeatLastN}) async {
     if (_controller == null) {
       return 'Error: Model not loaded';
     }
@@ -159,11 +159,11 @@ class LlamaService {
       await for (final token in _controller!.generate(
         prompt: prompt,
         temperature: temperature ?? 0.5,
-        topP: 0.8,
-        topK: 40,
+        topP: topP ?? 0.8,
+        topK: topK ?? 40,
         maxTokens: maxTokens ?? 256,
-        repeatPenalty: 1.1,
-        repeatLastN: 64,
+        repeatPenalty: repeatPenalty ?? 1.1,
+        repeatLastN: repeatLastN ?? 64,
       )) {
         result += token;
       }
@@ -176,7 +176,7 @@ class LlamaService {
     }
   }
 
-  Stream<String> generateStream(String message, {List<Map<String, String>>? history, double? temperature, int? maxTokens}) async* {
+  Stream<String> generateStream(String message, {List<Map<String, String>>? history, double? temperature, int? maxTokens, double? topP, int? topK, double? repeatPenalty, int? repeatLastN}) async* {
     if (_controller == null) {
       yield 'Error: Model not loaded';
       return;
@@ -190,11 +190,11 @@ class LlamaService {
       await for (final token in _controller!.generate(
         prompt: prompt,
         temperature: temperature ?? 0.5,
-        topP: 0.8,
-        topK: 40,
+        topP: topP ?? 0.8,
+        topK: topK ?? 40,
         maxTokens: maxTokens ?? 256,
-        repeatPenalty: 1.1,
-        repeatLastN: 64,
+        repeatPenalty: repeatPenalty ?? 1.1,
+        repeatLastN: repeatLastN ?? 64,
       )) {
         yield token;
       }
@@ -203,7 +203,7 @@ class LlamaService {
     }
   }
 
-  Stream<String> continueGeneration(List<Map<String, String>>? history, {double? temperature, int? maxTokens}) async* {
+  Stream<String> continueGeneration(List<Map<String, String>>? history, {double? temperature, int? maxTokens, double? topP, int? topK, double? repeatPenalty, int? repeatLastN}) async* {
     if (_controller == null) {
       yield 'Error: Model not loaded';
       return;
@@ -221,11 +221,11 @@ class LlamaService {
       await for (final token in _controller!.generate(
         prompt: prompt,
         temperature: temperature ?? 0.5,
-        topP: 0.8,
-        topK: 40,
+        topP: topP ?? 0.8,
+        topK: topK ?? 40,
         maxTokens: maxTokens ?? 256,
-        repeatPenalty: 1.1,
-        repeatLastN: 64,
+        repeatPenalty: repeatPenalty ?? 1.1,
+        repeatLastN: repeatLastN ?? 64,
       )) {
         yield token;
       }
@@ -234,22 +234,18 @@ class LlamaService {
     }
   }
 
-  Future<String> analyzeImage(String imagePath, String prompt) async {
-    return 'Image analysis requires multimodal model. Please use a vision-enabled GGUF model.';
+  Future<void> unload() async {
+    try {
+      await _controller?.dispose();
+      _controller = null;
+      _updateState(const ModelState(status: ModelStatus.idle));
+    } catch (_) {}
   }
 
   Future<void> stop() async {
     try {
       await _controller?.stop();
       _updateState(_state.copyWith(status: ModelStatus.ready));
-    } catch (_) {}
-  }
-
-  Future<void> unload() async {
-    try {
-      await _controller?.dispose();
-      _controller = null;
-      _updateState(const ModelState(status: ModelStatus.idle));
     } catch (_) {}
   }
 
