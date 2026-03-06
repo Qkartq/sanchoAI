@@ -33,48 +33,77 @@ class SettingsNotifier extends StateNotifier<AsyncValue<AppSettings>> {
 
   Future<void> setModelPath(String path) async {
     final current = state.valueOrNull ?? AppSettings();
-    await updateSettings(current..modelPath = path);
+    await updateSettings(current.copyWith(modelPath: path));
   }
 
   Future<void> setMmprojPath(String path) async {
     final current = state.valueOrNull ?? AppSettings();
-    await updateSettings(current..mmprojPath = path);
+    await updateSettings(current.copyWith(mmprojPath: path));
   }
 
   Future<void> setSystemPrompt(String prompt) async {
     final current = state.valueOrNull ?? AppSettings();
-    await updateSettings(current..systemPrompt = prompt);
+    await updateSettings(current.copyWith(systemPrompt: prompt));
   }
 
   Future<void> setTemperature(double temp) async {
     final current = state.valueOrNull ?? AppSettings();
     final clampedTemp = temp.clamp(0.1, 2.0);
-    await updateSettings(current..temperature = clampedTemp);
+    await updateSettings(current.copyWith(temperature: clampedTemp));
   }
 
   Future<void> setMaxTokens(int tokens) async {
     final current = state.valueOrNull ?? AppSettings();
-    await updateSettings(current..maxTokens = tokens);
+    await updateSettings(current.copyWith(maxTokens: tokens));
   }
 
   Future<void> setContextWindow(int ctx) async {
     final current = state.valueOrNull ?? AppSettings();
-    await updateSettings(current..contextWindow = ctx);
+    await updateSettings(current.copyWith(contextWindow: ctx));
   }
 
   Future<void> setRepeatPenalty(double penalty) async {
     final current = state.valueOrNull ?? AppSettings();
     final clampedPenalty = penalty.clamp(1.0, 2.0);
-    await updateSettings(current..repeatPenalty = clampedPenalty);
+    await updateSettings(current.copyWith(repeatPenalty: clampedPenalty));
   }
 
   Future<void> setTheme(String theme) async {
     final current = state.valueOrNull ?? AppSettings();
-    await updateSettings(current..theme = theme);
+    await updateSettings(current.copyWith(theme: theme));
   }
 
   Future<void> setLanguage(String lang) async {
     final current = state.valueOrNull ?? AppSettings();
-    await updateSettings(current..language = lang);
+    await updateSettings(current.copyWith(language: lang));
+  }
+
+  Future<void> setTopP(double topP) async {
+    final current = state.valueOrNull ?? AppSettings();
+    final clamped = topP.clamp(0.0, 1.0);
+    await updateSettings(current.copyWith(topP: clamped));
+  }
+
+  Future<void> setTopK(int topK) async {
+    final current = state.valueOrNull ?? AppSettings();
+    await updateSettings(current.copyWith(topK: topK));
+  }
+
+  Future<void> setRepeatLastN(int repeatLastN) async {
+    final current = state.valueOrNull ?? AppSettings();
+    await updateSettings(current.copyWith(repeatLastN: repeatLastN));
+  }
+
+  Future<void> resetGenerationSettings() async {
+    final current = state.valueOrNull ?? AppSettings();
+    await updateSettings(current.copyWith(
+      temperature: 0.5,
+      maxTokens: 256,
+      contextWindow: 2048,
+      repeatPenalty: 1.1,
+      topP: 0.8,
+      topK: 40,
+      repeatLastN: 64,
+    ));
   }
 }

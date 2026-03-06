@@ -5,6 +5,7 @@ import '../../domain/entities/model_state.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../data/datasources/llama_service.dart';
 import 'settings_provider.dart';
+export '../../data/datasources/llama_service.dart' show TokenCount;
 
 final llamaServiceProvider = Provider<LlamaService>((ref) {
   final service = LlamaService();
@@ -15,11 +16,19 @@ final llamaServiceProvider = Provider<LlamaService>((ref) {
       if (previous?.valueOrNull == null || previous?.valueOrNull?.systemPrompt != settings.systemPrompt) {
         service.setSystemPrompt(settings.systemPrompt);
       }
+      if (previous?.valueOrNull == null || previous?.valueOrNull?.chatTemplate != settings.chatTemplate) {
+        service.setChatTemplate(settings.chatTemplate);
+      }
     }
   });
   
   ref.onDispose(() => service.dispose());
   return service;
+});
+
+final tokenStreamProvider = StreamProvider<TokenCount>((ref) {
+  final service = ref.watch(llamaServiceProvider);
+  return service.tokenStream;
 });
 
 final modelStateProvider = StateNotifierProvider<ModelStateNotifier, ModelState>((ref) {
@@ -50,7 +59,7 @@ final initializeModelProvider = Provider<Future<void> Function()>((ref) {
   
   return () async {
     final s = settings.valueOrNull;
-    debugPrint('Initializing model with path: ${s?.modelPath}');
+    debugPrint('Initializing model');
     if (s == null || s.modelPath.isEmpty) {
       debugPrint('No model path set');
       return;
